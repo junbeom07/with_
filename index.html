@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>노트북 대여 관리 시스템</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 20px;
+            position: relative; /* 모달의 위치 설정을 위한 상대적 위치 지정 */
+        }
+
+        h1, h2 {
+            color: #333;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ccc;
+            padding: 12px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #f8f8f8;
+            color: #555;
+        }
+
+        .available {
+            background-color: #c8e6c9; /* 초록색 */
+            color: #2e7d32;
+            font-weight: bold;
+        }
+
+        .unavailable {
+            background-color: #ffcdd2; /* 빨간색 */
+            color: #c62828;
+            font-weight: bold;
+        }
+
+        .rental-info {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-container {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+            position: absolute;
+            top: 60%; /* 중앙에서 약간 아래로 위치 변경 */
+            left: 50%;
+            transform: translate(-50%, -50%);
+            max-width: 500px;
+            width: 100%;
+            z-index: 1000; /* 모달이 다른 요소 위에 위치하도록 설정 */
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5); /* 배경 흐림 효과 */
+            z-index: 999; /* 모달보다 뒤에 위치하도록 설정 */
+            display: none; /* 기본적으로 숨김 처리 */
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 4px;
+            font-weight: bold;
+        }
+
+        .form-group input, .form-group select {
+            padding: 8px;
+            width: 100%;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .submit-btn, #show-form-btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        .submit-btn:hover, #show-form-btn:hover {
+            background-color: #45a049;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>노트북 대여 관리 시스템</h1>
+
+    <!-- 메인화면 노트북 대여 현황 -->
+    <h2>노트북 대여 현황</h2>
+    <table>
+        <tbody>
+            <!-- 5x4 테이블을 미리 생성 -->
+            <tr>
+                <td id="pc1" class="available">PC1</td>
+                <td id="pc2" class="unavailable">홍길동</td>
+                <td id="pc3" class="available">PC3</td>
+                <td id="pc4" class="available">PC4</td>
+            </tr>
+            <tr>
+                <td id="pc5" class="available">PC5</td>
+                <td id="pc6" class="available">PC6</td>
+                <td id="pc7" class="available">PC7</td>
+                <td id="pc8" class="available">PC8</td>
+            </tr>
+            <tr>
+                <td id="pc9" class="available">PC9</td>
+                <td id="pc10" class="available">PC10</td>
+                <td id="pc11" class="available">PC11</td>
+                <td id="pc12" class="available">PC12</td>
+            </tr>
+            <tr>
+                <td id="pc13" class="available">PC13</td>
+                <td id="pc14" class="available">PC14</td>
+                <td id="pc15" class="available">PC15</td>
+                <td id="pc16" class="available">PC16</td>
+            </tr>
+            <tr>
+                <td id="pc17" class="available">PC17</td>
+                <td id="pc18" class="available">PC18</td>
+                <td id="pc19" class="available">PC19</td>
+                <td id="pc20" class="available">PC20</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- 대여 버튼 -->
+    <button id="show-form-btn">노트북 대여하기</button>
+
+    <!-- 배경 흐림 오버레이 -->
+    <div id="modal-overlay" class="modal-overlay"></div>
+
+    <!-- 대여 정보 입력 폼 (초기에 숨김 처리) -->
+    <div id="form-container" class="form-container hidden">
+        <h2>노트북 대여 정보 입력</h2>
+        <form id="rental-form">
+            <div class="form-group">
+                <label for="student-id">학번:</label>
+                <input type="text" id="student-id" name="student-id" required>
+            </div>
+            <div class="form-group">
+                <label for="student-name">이름:</label>
+                <input type="text" id="student-name" name="student-name" required>
+            </div>
+            <div class="form-group">
+                <label for="laptop-number">노트북 번호:</label>
+                <select id="laptop-number" name="laptop-number" required>
+                    <!-- PC1 ~ PC20 옵션 추가 -->
+                    <option value="pc1">PC1</option>
+                    <option value="pc2">PC2</option>
+                    <option value="pc3">PC3</option>
+                    <option value="pc4">PC4</option>
+                    <option value="pc5">PC5</option>
+                    <option value="pc6">PC6</option>
+                    <option value="pc7">PC7</option>
+                    <option value="pc8">PC8</option>
+                    <option value="pc9">PC9</option>
+                    <option value="pc10">PC10</option>
+                    <option value="pc11">PC11</option>
+                    <option value="pc12">PC12</option>
+                    <option value="pc13">PC13</option>
+                    <option value="pc14">PC14</option>
+                    <option value="pc15">PC15</option>
+                    <option value="pc16">PC16</option>
+                    <option value="pc17">PC17</option>
+                    <option value="pc18">PC18</option>
+                    <option value="pc19">PC19</option>
+                    <option value="pc20">PC20</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="rental-time">대여 시간:</label>
+                <select id="rental-time" name="rental-time" required>
+                    <option value="period1">1교시</option>
+                    <option value="period2">2교시</option>
+                    <option value="period3">3교시</option>
+                    <option value="period4">4교시</option>
+                    <option value="lunch">점심시간</option>
+                    <option value="period5">5교시</option>
+                    <option value="period6">6교시</option>
+                    <option value="period7">7교시</option>
+                    <option value="period8">8교시</option>
+                    <option value="dinner">석식시간</option>
+                    <option value="evening">야자시간</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="purpose">용도:</label>
+                <input type="text" id="purpose" name="purpose" required>
+            </div>
+            <div class="form-group">
+                <label for="location">장소:</label>
+                <input type="text" id="location" name="location" required>
+            </div>
+            <div class="form-group">
+                <label for="teacher">담당 교사:</label>
+                <input type="text" id="teacher" name="teacher" required>
+            </div>
+            <button type="submit" class="submit-btn">대여하기</button>
+        </form>
+    </div>
+
+    <!-- 현재 대여 중인 노트북 정보 -->
+    <h2>현재 대여 중인 노트북 정보</h2>
+    <div id="rented-laptops" class="rental-info">
+        <!-- 대여된 노트북 정보가 여기에 표시됩니다 -->
+    </div>
+
+    <script>
+        // 대여 폼을 표시하는 함수
+        document.getElementById('show-form-btn').addEventListener('click', function() {
+            document.getElementById('form-container').classList.toggle('hidden');
+            document.getElementById('modal-overlay').style.display = 'block';
+        });
+
+        // 모달 오버레이를 클릭하면 폼을 숨김
+        document.getElementById('modal-overlay').addEventListener('click', function() {
+            document.getElementById('form-container').classList.add('hidden');
+            document.getElementById('modal-overlay').style.display = 'none';
+        });
+
+        // 폼 제출 시 대여 정보를 표시하는 함수
+        document.getElementById('rental-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const studentId = document.getElementById('student-id').value;
+            const studentName = document.getElementById('student-name').value;
+            const laptopNumber = document.getElementById('laptop-number').value;
+            const rentalTime = document.getElementById('rental-time').value;
+            const purpose = document.getElementById('purpose').value;
+            const location = document.getElementById('location').value;
+            const teacher = document.getElementById('teacher').value;
+
+            // 대여 정보를 화면에 표시
+            const rentalInfo = `
+                <div>
+                    <strong>${laptopNumber.toUpperCase()}</strong> - 
+                    학번: ${studentId}, 이름: ${studentName}, 시간: ${rentalTime}, 용도: ${purpose}, 
+                    장소: ${location}, 담당 교사: ${teacher}, 반납여부: 미반납
+                </div>
+            `;
+            document.getElementById('rented-laptops').innerHTML += rentalInfo;
+
+            // 노트북 상태 업데이트
+            const laptopCell = document.getElementById(laptopNumber);
+            laptopCell.textContent = studentName;
+            laptopCell.classList.remove('available');
+            laptopCell.classList.add('unavailable');
+
+            // 폼 숨기기 및 초기화
+            document.getElementById('form-container').classList.add('hidden');
+            document.getElementById('modal-overlay').style.display = 'none';
+            document.getElementById('rental-form').reset();
+        });
+    </script>
+
+</body>
+</html>
