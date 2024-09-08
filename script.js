@@ -25,19 +25,58 @@ document.querySelectorAll('.laptop-status td').forEach(td => {
         const laptopId = this.getAttribute('data-id');
         const info = rentedLaptops[laptopId];
 
-        if (info) {
+        if (info && info.length > 0) {
+            // 대여 정보를 날짜별로 그룹화
+            const groupedInfo = info.reduce((acc, rental) => {
+                const date = rental.rentalDateTime.toLocaleDateString();  // 날짜 형식 수정
+                if (!acc[date]) acc[date] = [];
+                acc[date].push(rental);
+                return acc;
+            }, {});
+
             // 모달에 대여 정보 표시
-            const modalContent = `
+            const rentalInfo = Object.entries(groupedInfo).map(([date, rentals]) => {
+                const rentalDetails = rentals.map((rental, index) => `
+                    <div class="rental-info-block">
+                        <button class="toggle-details-btn" data-index="${index}">${rental.rentalDateTime.toLocaleTimeString()}</button>
+                        <div class="rental-info-details hidden" id="info-${index}">
+                            <p><strong>이름:</strong> ${rental.userName}</p>
+                            <p><strong>대여시간:</strong> ${rental.rentalDateTime.toLocaleString()}</p>
+                            <p><strong>과목:</strong> ${rental.subject}</p>
+                            <p><strong>담당 교사:</strong> ${rental.teacher}</p>
+                            <p><strong>반납여부:</strong> ${rental.returned ? '반납됨' : '미반납'}</p>
+                        </div>
+                    </div>
+                `).join('<hr/>');
+                return `
+                    <h3>${date}</h3>
+                    <div class="rental-info-container">
+                        ${rentalDetails}
+                    </div>
+                `;
+            }).join('<hr/>');
+
+            document.getElementById('modal-content').innerHTML = `
                 <h2>${laptopId.toUpperCase()} 대여 정보</h2>
-                <p><strong>이름:</strong> ${info.userName}</p>
-                <p><strong>시간:</strong> ${info.rentalTimes.join(', ')}</p>
-                <p><strong>과목:</strong> ${info.subject}</p>
-                <p><strong>담당 교사:</strong> ${info.teacher}</p>
-                <p><strong>반납여부:</strong> ${info.returned ? '반납됨' : '미반납'}</p>
+                ${rentalInfo}
             `;
-            document.getElementById('modal-content').innerHTML = modalContent;
             document.getElementById('info-modal').classList.remove('hidden');
             document.getElementById('modal-overlay').style.display = 'block';
+
+            // '상세보기' 버튼 클릭 시 해당 정보 블록 토글
+            document.querySelectorAll('.toggle-details-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const index = this.getAttribute('data-index');
+                    const details = document.getElementById(`info-${index}`);
+                    if (details.classList.contains('hidden')) {
+                        details.classList.remove('hidden');
+                        this.textContent = '숨기기';
+                    } else {
+                        details.classList.add('hidden');
+                        this.textContent = rentedLaptops[laptopId][index].rentalDateTime.toLocaleTimeString();
+                    }
+                });
+            });
         } else {
             // 정보가 없는 경우
             const modalContent = `
@@ -63,16 +102,18 @@ document.getElementById('rental-form').addEventListener('submit', function(event
 
     const userName = document.getElementById('user-name').value;
     const laptopNumbers = Array.from(document.querySelectorAll('#laptop-number input:checked')).map(checkbox => checkbox.value);
-    const rentalTimes = Array.from(document.querySelectorAll('#rental-time input:checked')).map(checkbox => checkbox.value);
     const subject = document.getElementById('subject').value;
     const teacher = document.getElementById('teacher').value;
+
+    // 현재 날짜와 시간 가져오기
+    const currentDateTime = new Date();
 
     laptopNumbers.forEach(laptopNumber => {
         const rentalCard = `
             <div class="rental-card">
                 <strong>${laptopNumber.toUpperCase()}</strong>
                 <div>이름: ${userName}</div>
-                <div>시간: ${rentalTimes.join(', ')}</div>
+                <div>대여시간: ${currentDateTime.toLocaleString()}</div>
                 <div>과목: ${subject}</div>
                 <div>담당 교사: ${teacher}</div>
                 <button class="return-btn" data-id="${laptopNumber}">반납하기</button>
@@ -88,13 +129,16 @@ document.getElementById('rental-form').addEventListener('submit', function(event
         laptopStatus[laptopNumber] = 'unavailable';
 
         // 대여 정보 저장
-        rentedLaptops[laptopNumber] = {
+        if (!rentedLaptops[laptopNumber]) {
+            rentedLaptops[laptopNumber] = [];
+        }
+        rentedLaptops[laptopNumber].push({
             userName,
-            rentalTimes,
+            rentalDateTime: currentDateTime,  // new Date() 객체 저장
             subject,
             teacher,
             returned: false
-        };
+        });
     });
 
     document.getElementById('form-container').classList.add('hidden');
@@ -123,22 +167,26 @@ document.getElementById('rented-laptops').addEventListener('click', function(eve
         const laptopId = event.target.getAttribute('data-id');
         const info = rentedLaptops[laptopId];
 
-        if (info && !info.returned) {
-            // 노트북 반납 처리
-            info.returned = true;
+        if (info && info.length > 0) {
+            const lastRental = info[info.length - 1];
 
-            // 노트북 상태와 UI 업데이트
-            const laptopCell = document.getElementById(laptopId);
-            laptopCell.textContent = laptopId.toUpperCase();
-            laptopCell.classList.remove('unavailable');
-            laptopCell.classList.add('available');
-            laptopStatus[laptopId] = 'available';
+            if (!lastRental.returned) {
+                // 노트북 반납 처리
+                lastRental.returned = true;
 
-            // 랜탈 카드에서 반납 상태 업데이트 및 카드 제거
-            const rentalCard = document.querySelector(`.rental-card .return-btn[data-id="${laptopId}"]`).parentElement;
-            rentalCard.remove(); // 카드 제거
+                // 노트북 상태와 UI 업데이트
+                const laptopCell = document.getElementById(laptopId);
+                laptopCell.textContent = laptopId.toUpperCase();
+                laptopCell.classList.remove('unavailable');
+                laptopCell.classList.add('available');
+                laptopStatus[laptopId] = 'available';
 
-            event.target.disabled = true; // 버튼 비활성화
+                // 랜탈 카드에서 반납 상태 업데이트 및 카드 제거
+                const rentalCard = document.querySelector(`.rental-card .return-btn[data-id="${laptopId}"]`).parentElement;
+                rentalCard.remove(); // 카드 제거
+
+                event.target.disabled = true; // 버튼 비활성화
+            }
         }
     }
 });

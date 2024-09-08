@@ -129,22 +129,6 @@
                 </div>
             </div>
             <div class="form-group">
-                <label>대여 시간:</label>
-                <div id="rental-time" class="checkbox-group">
-                    <label><input type="checkbox" name="rental-time" value="period1"> 1교시</label>
-                    <label><input type="checkbox" name="rental-time" value="period2"> 2교시</label>
-                    <label><input type="checkbox" name="rental-time" value="period3"> 3교시</label>
-                    <label><input type="checkbox" name="rental-time" value="period4"> 4교시</label>
-                    <label><input type="checkbox" name="rental-time" value="lunch"> 점심시간</label>
-                    <label><input type="checkbox" name="rental-time" value="period5"> 5교시</label>
-                    <label><input type="checkbox" name="rental-time" value="period6"> 6교시</label>
-                    <label><input type="checkbox" name="rental-time" value="period7"> 7교시</label>
-                    <label><input type="checkbox" name="rental-time" value="period8"> 8교시</label>
-                    <label><input type="checkbox" name="rental-time" value="dinner"> 석식시간</label>
-                    <label><input type="checkbox" name="rental-time" value="evening"> 야자시간</label>
-                </div>
-            </div>
-            <div class="form-group">
                 <label for="subject">과목:</label>
                 <input type="text" id="subject" name="subject" required>
             </div>
@@ -158,9 +142,9 @@
 
     <!-- 대여 정보 모달 (초기에 숨김 처리) -->
     <div id="info-modal" class="info-modal hidden">
-        <div id="modal-content" class="modal-content"></div>
         <button id="modal-close-btn" class="modal-close-btn">닫기</button>
-    </div>
+        <div id="modal-content"></div>
+    </div>  
 
     <!-- 배경 흐림 오버레이 -->
     <div id="modal-overlay" class="modal-overlay"></div>
