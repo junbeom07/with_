@@ -11,7 +11,6 @@
     <h1>노트북 대여 관리 시스템</h1>
 
     <div class="container">
-        <!-- 메인화면 노트북 대여 현황 -->
         <div class="laptop-status">
             <h2>노트북 대여 현황</h2>
             <table>
@@ -74,12 +73,10 @@
         <div class="rented-laptops">
             <h2>현재 대여 중인 노트북 정보</h2>
             <div id="rented-laptops" class="rental-info">
-                <!-- 대여된 노트북 정보 카드가 여기에 표시됩니다 -->
             </div>
         </div>
     </div>
 
-    <!-- 배경 흐림 오버레이 -->
     <div id="modal-overlay" class="modal-overlay"></div>
 
     <!-- 대여 정보 입력 폼 (초기에 숨김 처리) -->
@@ -93,7 +90,6 @@
             <div class="form-group">
                 <label>노트북 번호:</label>
                 <div id="laptop-number" class="checkbox-group">
-                    <!-- PC1 ~ PC32 체크박스 추가 -->
                     <label><input type="checkbox" name="laptop-number" value="pc1"> PC1</label>
                     <label><input type="checkbox" name="laptop-number" value="pc2"> PC2</label>
                     <label><input type="checkbox" name="laptop-number" value="pc3"> PC3</label>
@@ -136,6 +132,17 @@
                 <label for="teacher">담당 교사:</label>
                 <input type="text" id="teacher" name="teacher" required>
             </div>
+            <div class="form-group">
+                <label>이용 시간:</label>
+                <div id="rental-duration" class="checkbox-group">
+                    <label><input type="checkbox" name="rental-duration" value="1min"> 1분</label>
+                    <label><input type="checkbox" name="rental-duration" value="1hour"> 1시간</label>
+                    <label><input type="checkbox" name="rental-duration" value="2hours"> 2시간</label>
+                    <label><input type="checkbox" name="rental-duration" value="3hours"> 3시간</label>
+                    <label><input type="checkbox" name="rental-duration" value="4hours"> 4시간</label>
+                    <label><input type="checkbox" name="rental-duration" value="morethan4hours"> 4시간 이상</label>
+                </div>
+            </div>
             <button type="submit" class="submit-btn">대여하기</button>
         </form>
     </div>
@@ -146,10 +153,10 @@
         <div id="modal-content"></div>
     </div>  
 
-    <!-- 배경 흐림 오버레이 -->
     <div id="modal-overlay" class="modal-overlay"></div>
 
     <script src="script.js"></script>
 
 </body>
 </html>
+
