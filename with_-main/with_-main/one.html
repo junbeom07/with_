@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>노트북 대여 관리 시스템</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 20px;
+            position: relative;
+        }
+
+        h1, h2 {
+            color: #333;
+        }
+
+        .container {
+            display: flex;
+            gap: 20px;
+        }
+
+        .laptop-status, .rented-laptops {
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        .laptop-status {
+            background-color: #ffffff;
+            flex: 3;
+        }
+
+        .rented-laptops {
+            background-color: #f9f9f9;
+            flex: 1;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ccc;
+            padding: 12px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #f8f8f8;
+            color: #555;
+        }
+
+        .available {
+            background-color: #c8e6c9; /* 초록색 */
+            color: #2e7d32;
+            font-weight: bold;
+        }
+
+        .unavailable {
+            background-color: #ffcdd2; /* 빨간색 */
+            color: #c62828;
+            font-weight: bold;
+        }
+
+        .rental-info {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .rental-card {
+            background-color: #ffffff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .rental-card strong {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .rental-card div {
+            margin-bottom: 5px;
+        }
+
+        .form-container {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            max-width: 500px;
+            width: 100%;
+            z-index: 1000;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            display: none;
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 4px;
+            font-weight: bold;
+        }
+
+        .form-group input, .form-group select {
+            padding: 8px;
+            width: 100%;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .checkbox-group label {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            appearance: none;
+            background-color: #fff;
+            border: 2px solid #ccc;
+            border-radius: 4px;
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+            position: relative;
+            margin-right: 8px;
+        }
+
+        .checkbox-group input[type="checkbox"]:checked::before {
+            content: "";
+            position: absolute;
+            left: 4px;
+            top: 2px;
+            width: 6px;
+            height: 10px;
+            border: solid #4CAF50;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+
+        .form-group button, #show-form-btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        .form-group button:hover, #show-form-btn:hover {
+            background-color: #45a049;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>노트북 대여 관리 시스템</h1>
+
+    <div class="container">
+        <!-- 메인화면 노트북 대여 현황 -->
+        <div class="laptop-status">
+            <h2>노트북 대여 현황</h2>
+            <table>
+                <tbody>
+                    <!-- 5x4 테이블을 미리 생성 -->
+                    <tr>
+                        <td id="pc1" class="available">PC1</td>
+                        <td id="pc2" class="available">PC2</td>
+                        <td id="pc3" class="available">PC3</td>
+                        <td id="pc4" class="available">PC4</td>
+                    </tr>
+                    <tr>
+                        <td id="pc5" class="available">PC5</td>
+                        <td id="pc6" class="available">PC6</td>
+                        <td id="pc7" class="available">PC7</td>
+                        <td id="pc8" class="available">PC8</td>
+                    </tr>
+                    <tr>
+                        <td id="pc9" class="available">PC9</td>
+                        <td id="pc10" class="available">PC10</td>
+                        <td id="pc11" class="available">PC11</td>
+                        <td id="pc12" class="available">PC12</td>
+                    </tr>
+                    <tr>
+                        <td id="pc13" class="available">PC13</td>
+                        <td id="pc14" class="available">PC14</td>
+                        <td id="pc15" class="available">PC15</td>
+                        <td id="pc16" class="available">PC16</td>
+                    </tr>
+                    <tr>
+                        <td id="pc17" class="available">PC17</td>
+                        <td id="pc18" class="available">PC18</td>
+                        <td id="pc19" class="available">PC19</td>
+                        <td id="pc20" class="available">PC20</td>
+                    </tr>
+                </tbody>
+            </table>
+            <!-- 대여 버튼 -->
+            <button id="show-form-btn">노트북 대여하기</button>
+        </div>
+
+        <!-- 현재 대여 중인 노트북 정보 -->
+        <div class="rented-laptops">
+            <h2>현재 대여 중인 노트북 정보</h2>
+            <div id="rented-laptops" class="rental-info">
+                <!-- 대여된 노트북 정보 카드가 여기에 표시됩니다 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 배경 흐림 오버레이 -->
+    <div id="modal-overlay" class="modal-overlay"></div>
+
+    <!-- 대여 정보 입력 폼 (초기에 숨김 처리) -->
+    <div id="form-container" class="form-container hidden">
+        <h2>노트북 대여 정보 입력</h2>
+        <form id="rental-form">
+            <div class="form-group">
+                <label for="student-id">학번:</label>
+                <input type="text" id="student-id" name="student-id" required>
+            </div>
+            <div class="form-group">
+                <label for="student-name">이름:</label>
+                <input type="text" id="student-name" name="student-name" required>
+            </div>
+            <div class="form-group">
+                <label>노트북 번호:</label>
+                <div id="laptop-number" class="checkbox-group">
+                    <!-- PC1 ~ PC20 체크박스 추가 -->
+                    <label><input type="checkbox" name="laptop-number" value="pc1"> PC1</label>
+                    <label><input type="checkbox" name="laptop-number" value="pc2"> PC2</label>
+                    <label><input type="checkbox" name="laptop-number" value="pc3"> PC3</label>
+                    <label><input type="checkbox" name="laptop-number" value="pc4"> PC4</label>
+                    <label><input type="checkbox" name="laptop-number" value="pc5"> PC5</label>
+                    <label><input type="checkbox" name="laptop-number" value="pc6"> PC6</label>
+                    <label><input type="checkbox" name="laptop-number" value="pc7"> PC7</label>
+                    <label><input type="checkbox" name="laptop-number" value="pc8"> PC8</label>
+                    <label><input type="checkbox" name="laptop-number" value="pc9"> PC9</label>
+                    <label><input type="checkbox" name="laptop-number" value="pc10"> PC10</label>
+                    <label><input type="checkbox" name="laptop-number" value="pc11"> PC11</label>
+                    <label><input type="checkbox" name="laptop-number" value="pc12"> PC12</label>
+                    <label><input type="checkbox" name="laptop-number" value="pc13"> PC13</label>
+                    <label><input type="checkbox" name="laptop-number" value="pc14"> PC14</label>
+                    <label><input type="checkbox" name="laptop-number" value="pc15"> PC15</label>
+                    <label><input type="checkbox" name="laptop-number" value="pc16"> PC16</label>
+                    <label><input type="checkbox" name="laptop-number" value="pc17"> PC17</label>
+                    <label><input type="checkbox" name="laptop-number" value="pc18"> PC18</label>
+                    <label><input type="checkbox" name="laptop-number" value="pc19"> PC19</label>
+                    <label><input type="checkbox" name="laptop-number" value="pc20"> PC20</label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>대여 시간:</label>
+                <div id="rental-time" class="checkbox-group">
+                    <label><input type="checkbox" name="rental-time" value="period1"> 1교시</label>
+                    <label><input type="checkbox" name="rental-time" value="period2"> 2교시</label>
+                    <label><input type="checkbox" name="rental-time" value="period3"> 3교시</label>
+                    <label><input type="checkbox" name="rental-time" value="period4"> 4교시</label>
+                    <label><input type="checkbox" name="rental-time" value="lunch"> 점심시간</label>
+                    <label><input type="checkbox" name="rental-time" value="period5"> 5교시</label>
+                    <label><input type="checkbox" name="rental-time" value="period6"> 6교시</label>
+                    <label><input type="checkbox" name="rental-time" value="period7"> 7교시</label>
+                    <label><input type="checkbox" name="rental-time" value="period8"> 8교시</label>
+                    <label><input type="checkbox" name="rental-time" value="dinner"> 석식시간</label>
+                    <label><input type="checkbox" name="rental-time" value="evening"> 야자시간</label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="purpose">용도:</label>
+                <input type="text" id="purpose" name="purpose" required>
+            </div>
+            <div class="form-group">
+                <label for="location">장소:</label>
+                <input type="text" id="location" name="location" required>
+            </div>
+            <div class="form-group">
+                <label for="teacher">담당 교사:</label>
+                <input type="text" id="teacher" name="teacher" required>
+            </div>
+            <button type="submit" class="submit-btn">대여하기</button>
+        </form>
+    </div>
+
+    <script>
+        // 대여 상태를 저장하는 객체
+        const laptopStatus = {
+            'pc1': 'available',
+            'pc2': 'available',
+            'pc3': 'available',
+            'pc4': 'available',
+            'pc5': 'available',
+            'pc6': 'available',
+            'pc7': 'available',
+            'pc8': 'available',
+            'pc9': 'available',
+            'pc10': 'available',
+            'pc11': 'available',
+            'pc12': 'available',
+            'pc13': 'available',
+            'pc14': 'available',
+            'pc15': 'available',
+            'pc16': 'available',
+            'pc17': 'available',
+            'pc18': 'available',
+            'pc19': 'available',
+            'pc20': 'available',
+        };
+
+        // 대여 폼을 표시하는 함수
+        document.getElementById('show-form-btn').addEventListener('click', function() {
+            document.getElementById('form-container').classList.remove('hidden');
+            document.getElementById('modal-overlay').style.display = 'block';
+            updateCheckboxState();
+        });
+
+        // 모달 오버레이를 클릭하면 폼을 숨김
+        document.getElementById('modal-overlay').addEventListener('click', function() {
+            document.getElementById('form-container').classList.add('hidden');
+            document.getElementById('modal-overlay').style.display = 'none';
+        });
+
+        // 체크박스 상태 업데이트
+        function updateCheckboxState() {
+            document.querySelectorAll('#laptop-number input').forEach(checkbox => {
+                const laptopId = checkbox.value;
+                if (laptopStatus[laptopId] === 'unavailable') {
+                    checkbox.disabled = true;
+                    checkbox.parentElement.classList.add('disabled');
+                } else {
+                    checkbox.disabled = false;
+                    checkbox.parentElement.classList.remove('disabled');
+                }
+            });
+        }
+
+        // 폼 제출 시 대여 정보를 카드 형식으로 표시하는 함수
+        document.getElementById('rental-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const studentId = document.getElementById('student-id').value;
+            const studentName = document.getElementById('student-name').value;
+            const laptopNumbers = Array.from(document.querySelectorAll('#laptop-number input:checked')).map(checkbox => checkbox.value);
+            const rentalTimes = Array.from(document.querySelectorAll('#rental-time input:checked')).map(checkbox => checkbox.value);
+            const purpose = document.getElementById('purpose').value;
+            const location = document.getElementById('location').value;
+            const teacher = document.getElementById('teacher').value;
+
+            // 대여 정보를 카드 형식으로 화면에 표시
+            laptopNumbers.forEach(laptopNumber => {
+                const rentalCard = `
+                    <div class="rental-card">
+                        <strong>${laptopNumber.toUpperCase()}</strong>
+                        <div>학번: ${studentId}</div>
+                        <div>이름: ${studentName}</div>
+                        <div>시간: ${rentalTimes.join(', ')}</div>
+                        <div>용도: ${purpose}</div>
+                        <div>장소: ${location}</div>
+                        <div>담당 교사: ${teacher}</div>
+                        <div>반납여부: 미반납</div>
+                    </div>
+                `;
+                document.getElementById('rented-laptops').innerHTML += rentalCard;
+
+                // 노트북 상태 업데이트
+                const laptopCell = document.getElementById(laptopNumber);
+                laptopCell.textContent = studentName;
+                laptopCell.classList.remove('available');
+                laptopCell.classList.add('unavailable');
+
+                // 대여 상태 업데이트
+                laptopStatus[laptopNumber] = 'unavailable';
+            });
+
+            // 폼 숨기기 및 초기화
+            document.getElementById('form-container').classList.add('hidden');
+            document.getElementById('modal-overlay').style.display = 'none';
+            document.getElementById('rental-form').reset();
+            updateCheckboxState(); // 체크박스 상태 업데이트
+        });
+    </script>
+
+</body>
+</html>
